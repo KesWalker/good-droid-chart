@@ -17,6 +17,7 @@
 package com.patrykandpatryk.vico.core.axis.horizontal
 
 import android.graphics.RectF
+import android.util.Log
 import com.patrykandpatryk.vico.core.axis.Axis
 import com.patrykandpatryk.vico.core.axis.AxisPosition
 import com.patrykandpatryk.vico.core.axis.setTo
@@ -48,6 +49,8 @@ public class HorizontalAxis<Position : AxisPosition.Horizontal>(
 
     private val AxisPosition.Horizontal.textVerticalPosition: VerticalPosition
         get() = if (isBottom) VerticalPosition.Bottom else VerticalPosition.Top
+
+    public var spacing: Int = 0
 
     /**
      * Defines the tick placement.
@@ -92,11 +95,16 @@ public class HorizontalAxis<Position : AxisPosition.Horizontal>(
 
         var tickCenter = getTickDrawCenter(tickPosition, horizontalScroll, tickDrawStep, scrollAdjustment, textCenter)
 
+        spacing = chartValues.maxX.toInt() / 4
+
         forEachEntity(
             startValueIndex = chartValues.minX + scrollAdjustment * step,
             step = step,
+            spacing = spacing,
             xRange = chartValues.minX..chartValues.maxX,
         ) { valueIndex, shouldDrawLines, shouldDrawLabel ->
+
+            Log.d("kesD", "drawBehindChart: ${tickPosition.offset} ${tickPosition.spacing} $valueIndex $shouldDrawLines $shouldDrawLabel")
 
             guideline
                 ?.takeIf {
@@ -129,7 +137,7 @@ public class HorizontalAxis<Position : AxisPosition.Horizontal>(
                     verticalPosition = position.textVerticalPosition,
                     maxTextWidth = getMaxTextWidth(
                         tickDrawStep = tickDrawStep.toInt(),
-                        spacing = tickPosition.spacing,
+                        spacing = spacing,
                         textX = textCenter,
                         bounds = chartBounds,
                     ),
@@ -169,6 +177,7 @@ public class HorizontalAxis<Position : AxisPosition.Horizontal>(
     private inline fun ChartDrawContext.forEachEntity(
         startValueIndex: Float,
         step: Float,
+        spacing: Int,
         xRange: ClosedFloatingPointRange<Float>,
         action: (valueIndex: Float, shouldDrawLines: Boolean, shouldDrawLabel: Boolean) -> Unit,
     ) {
@@ -182,7 +191,7 @@ public class HorizontalAxis<Position : AxisPosition.Horizontal>(
                 tickPosition.offset > 0
 
             val shouldDrawLines = valueIndex >= tickPosition.offset &&
-                (valueIndex - tickPosition.offset) % tickPosition.spacing == 0f &&
+                (valueIndex - tickPosition.offset) % spacing == 0f &&
                 firstEntityConditionsMet
 
             action(
@@ -226,7 +235,7 @@ public class HorizontalAxis<Position : AxisPosition.Horizontal>(
 
         val labelWidth =
             if (isHorizontalScrollEnabled) {
-                segmentProperties.scaled(scale = chartScale).segmentWidth.toInt() * tickPosition.spacing
+                segmentProperties.scaled(scale = chartScale).segmentWidth.toInt() * spacing
             } else Int.MAX_VALUE
 
         when (val constraint = sizeConstraint) {
