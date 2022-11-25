@@ -17,16 +17,13 @@
 package com.patrykandpatryk.vico.sample.activity
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.core.view.WindowCompat
-import com.patrykandpatryk.vico.sample.ui.VicoApp
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
+import com.patrykandpatryk.vico.R
 
-internal class MainActivity : ComponentActivity() {
-
+public class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContent { VicoApp() }
+        setContentView(R.layout.activity_main)
     }
 }
